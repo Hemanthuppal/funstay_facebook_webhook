@@ -82,7 +82,7 @@ app.post("/webhook", async (req, res) => {
 
     // Check if customer exists
     const [customerResults] = await connection.query(
-      "SELECT id, customer_status FROM customers WHERE phone_number = ?",
+      "SELECT id, customer_status FROM customerdescription WHERE phone_number = ?",
       [parsedPhoneNumber]
     );
 
@@ -103,7 +103,7 @@ app.post("/webhook", async (req, res) => {
 
     // Insert data into addleads
     const insertQuery = `
-    INSERT INTO addleads (
+    INSERT INTO addleadsdescription   (
       lead_date, ad_copy, ad_set, lead_type, destination, sources, 
       start_date, people_count, name, email, country_code, phone_number, 
       origincity, channel, customerid, customer_status, primarySource, secondarySource
@@ -128,7 +128,7 @@ app.post("/webhook", async (req, res) => {
 
 
 app.get('/enquiries', (req, res) => {
-  const query = 'SELECT * FROM addleads ORDER BY created_at DESC';
+  const query = 'SELECT * FROM addleadsdescription  ORDER BY created_at DESC';
   db.query(query, (err, results) => {
     if (err) {
       console.error('Error fetching enquiries:', err);
