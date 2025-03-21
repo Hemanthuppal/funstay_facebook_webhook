@@ -92,7 +92,7 @@ app.post("/webhook", async (req, res) => {
     } else {
       // Insert new customer
       const [insertResult] = await connection.query(
-        "INSERT INTO customers (name, email, phone_number, country_code, customer_status) VALUES (?, ?, ?, ?, ?)",
+        "INSERT INTO customerdescription (name, email, phone_number, country_code, customer_status) VALUES (?, ?, ?, ?, ?)",
         [name?.trim() || "", email?.trim() || "", parsedPhoneNumber?.trim() || "", country_code?.trim() || "", "new"]
       );
       customerId = insertResult.insertId;
