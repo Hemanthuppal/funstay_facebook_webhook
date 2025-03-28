@@ -8,7 +8,8 @@ const app = express();
 app.use(cors());
 app.use(bodyParser.json());
 
-// MySQL Connection
+
+
 const db = mysql.createPool({
   host: "localhost",
   user: 'nodeuser', // Your database user
@@ -55,14 +56,8 @@ app.post("/webhook", async (req, res) => {
 
   let {
     lead_date, ad_copy, ad_set, lead_type, destination, sources,
-    start_date, people_count, name, email, phone_number, origincity, 
-    channel, is_qualified, is_quality, is_converted
+    start_date, people_count, name, email, phone_number, origincity, channel
   } = req.body;
-
-  // If any of these fields exist (even if empty), set channel to ""
-  if (is_qualified !== undefined || is_quality !== undefined || is_converted !== undefined) {
-    channel = "";
-  }
 
   // Format start_date
   start_date = formatDate(start_date);
@@ -78,7 +73,7 @@ app.post("/webhook", async (req, res) => {
 
     // Check if customer exists
     const [customerResults] = await connection.query(
-      "SELECT id, customer_status FROM customers WHERE phone_number = ?",
+      "SELECT id, customer_status FROM customerdescription WHERE phone_number = ?",
       [parsedPhoneNumber]
     );
 
@@ -88,15 +83,18 @@ app.post("/webhook", async (req, res) => {
     } else {
       // Insert new customer
       const [insertResult] = await connection.query(
-        "INSERT INTO customers (name, email, phone_number, country_code, customer_status) VALUES (?, ?, ?, ?, ?)",
+        "INSERT INTO customerdescription (name, email, phone_number, country_code, customer_status) VALUES (?, ?, ?, ?, ?)",
         [name?.trim() || "", email?.trim() || "", parsedPhoneNumber?.trim() || "", country_code?.trim() || "", "new"]
       );
       customerId = insertResult.insertId;
     }
 
+    // Prevent duplicate entry in addleads
+    
+
     // Insert data into addleads
     const insertQuery = `
-    INSERT INTO addleads (
+    INSERT INTO addleadsdescription   (
       lead_date, ad_copy, ad_set, lead_type, destination, sources, 
       start_date, people_count, name, email, country_code, phone_number, 
       origincity, channel, customerid, customer_status, primarySource, secondarySource
@@ -109,6 +107,7 @@ app.post("/webhook", async (req, res) => {
     start_date, people_count, name, email, country_code, parsedPhoneNumber, 
     origincity, channel, customerId, customerStatus, "Meta", "Facebook (Paid)"
   ]);
+  
 
     res.status(200).json({ message: "Data inserted successfully", id: result.insertId });
   } catch (err) {
@@ -119,9 +118,8 @@ app.post("/webhook", async (req, res) => {
 
 
 
-
 app.get('/enquiries', (req, res) => {
-  const query = 'SELECT * FROM addleads ORDER BY created_at DESC';
+  const query = 'SELECT * FROM addleadsdescription  ORDER BY created_at DESC';
   db.query(query, (err, results) => {
     if (err) {
       console.error('Error fetching enquiries:', err);
