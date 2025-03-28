@@ -50,7 +50,7 @@ function parsePhoneNumber(phone) {
 }
 
 // Webhook Endpoint
-app.post("/webhook", async (req, res) => {
+app.post("/facebook/webhook", async (req, res) => {
   console.log("Received Webhook Data:", req.body);
 
   let {
@@ -120,7 +120,7 @@ app.post("/webhook", async (req, res) => {
 
 
 
-app.get('/enquiries', (req, res) => {
+app.get('/facebook/enquiries', (req, res) => {
   const query = 'SELECT * FROM addleads ORDER BY created_at DESC';
   db.query(query, (err, results) => {
     if (err) {
